@@ -35,9 +35,10 @@ def plot_logs(logs, fields=('class_error', 'loss_bbox_unscaled', 'mAP'), ewm_col
         else:
             raise ValueError(f"{func_name} - invalid argument for logs parameter.\n \
             Expect list[Path] or single Path obj, received {type(logs)}")
-
     # Quality checks - verify valid dir(s), that every item in list is Path object, and that log_name exists in each dir
     for i, dir in enumerate(logs):
+        print(dir)
+        print(type(dir))
         if not isinstance(dir, PurePath):
             raise ValueError(f"{func_name} - non-Path object in logs argument of {type(dir)}: \n{dir}")
         if not dir.exists():
@@ -111,5 +112,7 @@ if __name__ == '__main__':
     files = list(Path('C/Users/邵明钺/Desktop/detr/outputs/eval').glob('*.pth'))
     plot_precision_recall(files)
     plt.show()
-    # plot_logs(logs=Path('D:/detr/outputs/log/'),fields=('class_error', 'loss_bbox_unscaled', 'mAP'), ewm_col=0, log_name='log.txt')
-    # plt.show()
+
+    log_dir = Path("C:/Users/邵明钺/Desktop/detr/outputs/")
+    plot_logs(log_dir)
+    plt.show()
