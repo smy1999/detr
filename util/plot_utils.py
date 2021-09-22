@@ -105,3 +105,11 @@ def plot_precision_recall(files, naming_scheme='iter'):
     axs[1].set_title('Scores / Recall')
     axs[1].legend(names)
     return fig, axs
+
+
+if __name__ == '__main__':
+    files = list(Path('C/Users/邵明钺/Desktop/detr/outputs/eval').glob('*.pth'))
+    plot_precision_recall(files)
+    plt.show()
+    # plot_logs(logs=Path('D:/detr/outputs/log/'),fields=('class_error', 'loss_bbox_unscaled', 'mAP'), ewm_col=0, log_name='log.txt')
+    # plt.show()
