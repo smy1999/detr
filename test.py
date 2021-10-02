@@ -15,6 +15,13 @@ def test_directory():
     print(file_list)
 
 
+def test_torch():
+    x = torch.rand((3, 4, 5, 6))
+    print(x.size())
+    x = x.unsqueeze(1).repeat(1, 7, 1, 1, 1).flatten(0,1)
+    print(x.size())
+
 if __name__ == '__main__':
     # test_cpu_or_gpu()
-    test_directory()
+    # test_directory()
+    test_torch()

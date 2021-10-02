@@ -38,7 +38,6 @@ class DETRsegm(nn.Module):
         if isinstance(samples, (list, torch.Tensor)):
             samples = nested_tensor_from_tensor_list(samples)
         features, pos = self.detr.backbone(samples)
-
         bs = features[-1].tensors.shape[0]
 
         src, mask = features[-1].decompose()
@@ -54,7 +53,6 @@ class DETRsegm(nn.Module):
 
         # FIXME h_boxes takes the last one computed, keep this in mind
         bbox_mask = self.bbox_attention(hs[-1], memory, mask=mask)
-
         seg_masks = self.mask_head(src_proj, bbox_mask, [features[2].tensors, features[1].tensors, features[0].tensors])
         outputs_seg_masks = seg_masks.view(bs, self.detr.num_queries, seg_masks.shape[-2], seg_masks.shape[-1])
 
@@ -100,19 +98,24 @@ class MaskHeadSmallConv(nn.Module):
                 nn.init.constant_(m.bias, 0)
 
     def forward(self, x: Tensor, bbox_mask: Tensor, fpns: List[Tensor]):
+
         x = torch.cat([_expand(x, bbox_mask.shape[1]), bbox_mask.flatten(0, 1)], 1)
 
+        print('1x.shape = ' + str(x.shape))
         x = self.lay1(x)
         x = self.gn1(x)
         x = F.relu(x)
         x = self.lay2(x)
         x = self.gn2(x)
         x = F.relu(x)
-
         cur_fpn = self.adapter1(fpns[0])
+        print('8x.shape = ' + str(cur_fpn.shape))
+
         if cur_fpn.size(0) != x.size(0):
             cur_fpn = _expand(cur_fpn, x.size(0) // cur_fpn.size(0))
-        x = cur_fpn + F.interpolate(x, size=cur_fpn.shape[-2:], mode="nearest")
+            print(cur_fpn.size())
+        # x = cur_fpn + F.interpolate(x, size=cur_fpn.shape[-2:], mode="nearest")
+        x = F.interpolate(x, size=cur_fpn.shape[-2:], mode="nearest")
         x = self.lay3(x)
         x = self.gn3(x)
         x = F.relu(x)
@@ -361,3 +364,32 @@ class PostProcessPanoptic(nn.Module):
                 predictions = {"png_string": out.getvalue(), "segments_info": segments_info}
             preds.append(predictions)
         return preds
+
+
+def test_conv2d():
+    model = nn.Conv2d(5, 5, 3, padding=1)
+    seed = 5
+    torch.manual_seed(seed)
+    count = 0
+    input = torch.zeros((5, 5, 1, 1))
+    for i in range(5):
+        for j in range(5):
+
+            input[i][j][0][0] = count
+            count += 1
+    input = torch.Tensor(input)
+    # input = torch.randn(5, 5, 1, 1)
+    output = model(input)
+    print(input)
+    print(output)
+
+if __name__ == '__main__':
+    # 统计MaskHeadSmallConv的参数量
+    hidden_dim = 512
+    nheads = 8
+    model = MaskHeadSmallConv(hidden_dim + nheads, [1024, 512, 256], hidden_dim)
+
+
+
+    n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(n_parameters)

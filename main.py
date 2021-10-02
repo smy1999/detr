@@ -190,7 +190,11 @@ def main(args):
 
     print("Start training")
     start_time = time.time()
+    n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print('number of params:', n_parameters)
+
     for epoch in range(args.start_epoch, args.epochs):
+        print('epoch:' + str(epoch))
         if args.distributed:
             sampler_train.set_epoch(epoch)
         train_stats = train_one_epoch(
