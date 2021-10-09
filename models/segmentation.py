@@ -63,7 +63,7 @@ class DETRsegm(nn.Module):
 def _expand(tensor, length: int):
     return tensor.unsqueeze(1).repeat(1, int(length), 1, 1, 1).flatten(0, 1)
 
-"""
+
 # 原
 class MaskHeadSmallConv(nn.Module):
     # 此处有三引号
@@ -136,16 +136,13 @@ class MaskHeadSmallConv(nn.Module):
         x = F.relu(x)
 
         x = self.out_lay(x)
-        print(x.shape)
         return x
 """
-
-
 class MaskHeadSmallConv(nn.Module):
-    """
-    Simple convolutional head, using group norm.
-    Upsampling is done using a FPN approach
-    """
+    
+    # Simple convolutional head, using group norm.
+    # Upsampling is done using a FPN approach
+    
 
     def __init__(self, dim, fpn_dims, context_dim):
         super().__init__()
@@ -214,7 +211,7 @@ class MaskHeadSmallConv(nn.Module):
 
         x = self.out_lay(x)
         return x
-
+"""
 
 class MHAttentionMap(nn.Module):
     """This is a 2D attention module, which only returns the attention softmax (no multiplication by value)"""

@@ -166,3 +166,27 @@ def detr_resnet101_panoptic(
     if return_postprocessor:
         return model, PostProcessPanoptic(is_thing_map, threshold=threshold)
     return model
+
+
+def detr_mine(
+    pretrained=False, num_classes=2, threshold=0.85, return_postprocessor=False
+):
+    """
+    自定义的模型
+    """
+    model = _make_detr("resnet50", dilation=False, num_classes=num_classes, mask=True)
+    is_thing_map = {i: i <= 1 for i in range(2)}
+    if pretrained:
+        checkpoint = torch.load("outputs/segm_model/checkpoint.pth", map_location='cpu')
+        model.load_state_dict(checkpoint["model"])
+    if return_postprocessor:
+        return model, PostProcessPanoptic(is_thing_map, threshold=threshold)
+    return model
+
+
+def test_detr_mine():
+    model, post = detr_mine(return_postprocessor=True)
+
+
+if __name__ == '__main__':
+    test_detr_mine()
