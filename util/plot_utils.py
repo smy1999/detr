@@ -37,8 +37,6 @@ def plot_logs(logs, fields=('class_error', 'loss_bbox_unscaled', 'mAP'), ewm_col
             Expect list[Path] or single Path obj, received {type(logs)}")
     # Quality checks - verify valid dir(s), that every item in list is Path object, and that log_name exists in each dir
     for i, dir in enumerate(logs):
-        print(dir)
-        print(type(dir))
         if not isinstance(dir, PurePath):
             raise ValueError(f"{func_name} - non-Path object in logs argument of {type(dir)}: \n{dir}")
         if not dir.exists():
@@ -59,14 +57,16 @@ def plot_logs(logs, fields=('class_error', 'loss_bbox_unscaled', 'mAP'), ewm_col
         for j, field in enumerate(fields):
             if field == 'mAP':
                 coco_eval = pd.DataFrame(
-                    np.stack(df.test_coco_eval_bbox.dropna().values)[:, 1]
+                    # np.stack(df.test_coco_eval_bbox.dropna().values)[:, 1]
+                    np.stack(df.test_coco_eval_masks.dropna().values)[:, 1]
                 ).ewm(com=ewm_col).mean()
                 axs[j].plot(coco_eval, c=color)
             else:
                 df.interpolate().ewm(com=ewm_col).mean().plot(
                     y=[f'train_{field}', f'test_{field}'],
                     ax=axs[j],
-                    color=[color] * 2,
+                    # color=[color] * 2,
+                    color=[color, (0.1, 0.1, 0.1)],
                     style=['-', '--']
                 )
     for ax, field in zip(axs, fields):
@@ -109,10 +109,22 @@ def plot_precision_recall(files, naming_scheme='iter'):
 
 
 if __name__ == '__main__':
-    files = list(Path('C/Users/邵明钺/Desktop/detr/outputs/eval').glob('*.pth'))
-    plot_precision_recall(files)
-    plt.show()
+    # For Detection
+    # files = list(Path('../outputs/eval').glob('*.pth'))
+    # plot_precision_recall(files)
+    # plt.show()
+    #
+    # log_dir = Path("C:/Users/邵明钺/Desktop/detr/outputs/")
+    # flds = ('loss', 'mAP')
+    # plot_logs(log_dir, flds)
+    # plt.show()
 
-    log_dir = Path("C:/Users/邵明钺/Desktop/detr/outputs/")
-    plot_logs(log_dir)
+    # For Segmentation
+    # files = list(Path('../outputs/segm_model/eval').glob('*.pth'))
+    # plot_precision_recall(files)
+    # plt.show()
+
+    log_dir = Path("C:/Users/邵明钺/Desktop/detr/outputs/segm_model/")
+    flds = ('loss_bbox_unscaled', 'loss_giou_unscaled', 'loss_ce_unscaled', 'mAP')
+    plot_logs(log_dir, flds)
     plt.show()

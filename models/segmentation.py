@@ -312,11 +312,15 @@ class PostProcessSegm(nn.Module):
 
         for i, (cur_mask, t, tt) in enumerate(zip(outputs_masks, max_target_sizes, orig_target_sizes)):
             img_h, img_w = t[0], t[1]
-            results[i]["masks"] = cur_mask[:, :img_h, :img_w].unsqueeze(1)
-            results[i]["masks"] = F.interpolate(
-                results[i]["masks"].float(), size=tuple(tt.tolist()), mode="nearest"
-            ).byte()
+            d = cur_mask[:, :img_h, :img_w].unsqueeze(1)
+            d = F.interpolate(d.float(), size=tuple(tt.tolist()), mode="nearest").byte()
+            di = {'masks': d}
+            results.append(di)
 
+            # results[i]["masks"] = cur_mask[:, :img_h, :img_w].unsqueeze(1)
+            # results[i]["masks"] = F.interpolate(
+            #     results[i]["masks"].float(), size=tuple(tt.tolist()), mode="nearest"
+            # ).byte()
         return results
 
 

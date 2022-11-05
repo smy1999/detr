@@ -13,6 +13,7 @@ import util.misc as utils
 from datasets.coco_eval import CocoEvaluator
 from datasets.panoptic_eval import PanopticEvaluator
 
+import matplotlib.pyplot as plt
 
 
 def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
@@ -31,6 +32,12 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
         targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
 
         outputs = model(samples)
+
+        # for i, mask in enumerate(targets[0]["masks"].cpu()):
+        #     fig, axs = plt.subplots(ncols=1, nrows=1)
+        #     axs.imshow(mask.numpy(), cmap="cividis")
+        #     plt.savefig(f'test_gts/{int(targets[0]["image_id"])}-{i}.jpg')
+        # loss_dict = criterion(outputs, targets)
 
         loss_dict = criterion(outputs, targets)
         weight_dict = criterion.weight_dict
